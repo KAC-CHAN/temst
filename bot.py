@@ -1,7 +1,6 @@
 import os
 import random
 import datetime
-from pyrogram.enums import ParseMode
 from pyrogram import Client, filters
 from pyrogram.types import (
     InlineKeyboardMarkup,
@@ -35,11 +34,11 @@ def get_start_menu(user_id):
     user = users_collection.find_one({"user_id": user_id})
     welcome_text = "**Welcome to 91Club Bot!**\n\n"
     if user and user.get("logged_in"):
-        welcome_text += f"`Logged in as:\n"
-        "┏━━━━━━━━━━━━━━\n"
-        "┣➠ Account Details\n"
-        "┣✦ Name: {user['name']}\n"
-        "┗━━━━━━━━━━━━━━`" # New quote-style formatting
+        welcome_text += f"Logged in as:\n
+        ┏━━━━━━━━━━━━━━\n
+        ┣➠ Account Details\n
+        ┣✦ Name: **\"{user['name']}\"**
+        ┗━━━━━━━━━━━━━━"
     else:
         welcome_text += "Please choose an option below:"
 
@@ -56,11 +55,7 @@ def get_start_menu(user_id):
 async def start_command(client: Client, message: Message):
     user_id = message.from_user.id
     welcome_text, reply_markup = get_start_menu(user_id)
-    await message.reply_text(
-        welcome_text,
-        reply_markup=reply_markup,
-        parse_mode=ParseMode.MARKDOWN  # Add parse mode
-    )
+    await message.reply_text(welcome_text, reply_markup=reply_markup)
 
 @app.on_callback_query(filters.create(lambda _, __, query: query.data == "buy_sub"))
 async def buy_subscription(client: Client, callback_query: CallbackQuery):
@@ -85,11 +80,7 @@ async def buy_subscription(client: Client, callback_query: CallbackQuery):
 async def main_menu(client: Client, callback_query: CallbackQuery):
     user_id = callback_query.from_user.id
     welcome_text, reply_markup = get_start_menu(user_id)
-    await callback_query.message.edit_text(
-        welcome_text,
-        reply_markup=reply_markup,
-        parse_mode=ParseMode.MARKDOWN  # Add parse mode
-    )
+    await callback_query.message.edit_text(welcome_text, reply_markup=reply_markup)
 
 
 @app.on_callback_query(filters.create(lambda _, __, query: query.data == "connect_account"))
