@@ -13,11 +13,11 @@ from dotenv import load_dotenv
 load_dotenv()
 
 # Environment variables
-BOT_TOKEN = os.getenv("BOT_TOKEN")
-API_ID = int(os.getenv("API_ID"))
-API_HASH = os.getenv("API_HASH")
-MONGODB_URI = os.getenv("MONGODB_URI")
-ADMIN_ID = int(os.getenv("ADMIN_ID"))
+BOT_TOKEN = os.getenv("BOT_TOKEN", "7259559804:AAH_ArQg323s34Jp1QgtysoX5XxTXBKG-cw")
+API_ID = int(os.getenv("API_ID", "26788480"))
+API_HASH = os.getenv("API_HASH", "858d65155253af8632221240c535c314")
+MONGODB_URI = os.getenv("MONGODB_URI", "mongodb+srv://binomo:binomo123@binomo.hghd0yz.mongodb.net/?retryWrites=true&w=majority&appName=AtlasApp")
+ADMIN_ID = int(os.getenv("ADMIN_ID", ""))
 
 # MongoDB setup
 mongo_client = MongoClient(MONGODB_URI)
@@ -63,7 +63,7 @@ async def buy_subscription(client: Client, callback_query: CallbackQuery):
 - 1 Year: $70"""
 
     contact_button = InlineKeyboardMarkup([
-        [InlineKeyboardButton("Contact Admin", url=f"tg://user?id={ADMIN_ID}")]
+        [InlineKeyboardButton("Contact Admin", url=f"t.me/skibidiplayer")]
     ])
 
     await callback_query.message.edit_text(
