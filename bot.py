@@ -39,7 +39,7 @@ def get_start_menu(user_id):
             "Logged in as:\n"
             "┏━━━━━━━━━━━━━━\n"
             f"┣➠ Account Details\n"
-            f"┣✦ Name: **\"{user['name']}\"**\n"
+            f"┣✦ Name: **\{user['name']}\**\n"
             "┗━━━━━━━━━━━━━━"
         )
     else:
