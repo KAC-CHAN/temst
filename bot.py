@@ -1,6 +1,7 @@
 import os
 import random
 import datetime
+from pyrogram.enums import ParseMode
 from pyrogram import Client, filters
 from pyrogram.types import (
     InlineKeyboardMarkup,
