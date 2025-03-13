@@ -35,7 +35,7 @@ def get_start_menu(user_id):
     user = users_collection.find_one({"user_id": user_id})
     welcome_text = "**Welcome to 91Club Bot!**\n\n"
     if user and user.get("logged_in"):
-        welcome_text += f"Logged in as:\n > {user['name']}"  # New quote-style formatting
+        welcome_text += f"Logged in as:\n '> TesT' {user['name']}"  # New quote-style formatting
     else:
         welcome_text += "Please choose an option below:"
 
