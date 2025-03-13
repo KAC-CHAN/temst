@@ -36,11 +36,13 @@ def get_start_menu(user_id):
     
     if user and user.get("logged_in"):
         welcome_text += (
-            "Logged in as:\n"
+            "```python\n"
+            "# Logged in as:\n"
             "┏━━━━━━━━━━━━━━\n"
             f"┣➠ Account Details\n"
-            f"┣✦ Name: **{user['name']}**\n"
-            "┗━━━━━━━━━━━━━━"
+            f"┣✦ Name: {user['name']}\n"
+            "┗━━━━━━━━━━━━━━\n"
+            "```"
         )
     else:
         welcome_text += "Please choose an option below:"
