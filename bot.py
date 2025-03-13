@@ -17,7 +17,7 @@ BOT_TOKEN = os.getenv("BOT_TOKEN", "7259559804:AAH_ArQg323s34Jp1QgtysoX5XxTXBKG-
 API_ID = int(os.getenv("API_ID", "26788480"))
 API_HASH = os.getenv("API_HASH", "858d65155253af8632221240c535c314")
 MONGODB_URI = os.getenv("MONGODB_URI", "mongodb+srv://binomo:binomo123@binomo.hghd0yz.mongodb.net/?retryWrites=true&w=majority&appName=AtlasApp")
-ADMIN_ID = int(os.getenv("ADMIN_ID", ""))
+ADMIN_ID = int(os.getenv("ADMIN_ID", "5943144679"))
 
 # MongoDB setup
 mongo_client = MongoClient(MONGODB_URI)
