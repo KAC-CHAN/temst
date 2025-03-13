@@ -33,12 +33,15 @@ CONNECT_ACCOUNT_STATES = {}
 def get_start_menu(user_id):
     user = users_collection.find_one({"user_id": user_id})
     welcome_text = "**Welcome to 91Club Bot!**\n\n"
+    
     if user and user.get("logged_in"):
-        welcome_text += f"Logged in as:\n
-        ┏━━━━━━━━━━━━━━\n
-        ┣➠ Account Details\n
-        ┣✦ Name: **\"{user['name']}\"**
-        ┗━━━━━━━━━━━━━━"
+        welcome_text += (
+            "Logged in as:\n"
+            "┏━━━━━━━━━━━━━━\n"
+            f"┣➠ Account Details\n"
+            f"┣✦ Name: **\"{user['name']}\"**\n"
+            "┗━━━━━━━━━━━━━━"
+        )
     else:
         welcome_text += "Please choose an option below:"
 
