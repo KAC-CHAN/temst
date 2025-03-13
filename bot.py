@@ -36,7 +36,7 @@ def get_start_menu(user_id):
     
     if user and user.get("logged_in"):
         welcome_text += (
-            "```python\n"
+            "```\n"
             "# Logged in as:\n"
             "┏━━━━━━━━━━━━━━\n"
             f"┣➠ Account Details\n"
