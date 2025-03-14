@@ -31,6 +31,73 @@ app = Client("91club_bot", api_id=API_ID, api_hash=API_HASH, bot_token=BOT_TOKEN
 # States for conversation handling
 CONNECT_ACCOUNT_STATES = {}
 
+def get_start_menu(user_id):
+    user = users_collection.find_one({"user_id": user_id})
+    welcome_text = "**Welcome to 91Club Bot!**\n\n"
+    
+    if user and user.get("logged_in"):
+        welcome_text += (
+            "```\n"
+            "#Logged in as:\n"
+            "┏━━━━━━━━━━━━━━\n"
+            f"┣➠ Account Details\n"
+            f"┣✦ Name: {user['name']}\n"
+            "┗━━━━━━━━━━━━━━\n"
+            "```"
+        )
+    else:
+        welcome_text += "Please choose an option below:"
+
+    buttons = [
+        [InlineKeyboardButton("Buy Subscription", callback_data="buy_sub")],
+        [InlineKeyboardButton("Connect Account", callback_data="connect_account")] 
+        if not (user and user.get("logged_in")) else 
+        [InlineKeyboardButton("Logout", callback_data="logout")],
+        [InlineKeyboardButton("Get Live Signal", callback_data="live_signal")]
+    ]
+    return welcome_text, InlineKeyboardMarkup(buttons)
+
+@app.on_message(filters.command("start"))
+async def start_command(client: Client, message: Message):
+    user_id = message.from_user.id
+    welcome_text, reply_markup = get_start_menu(user_id)
+    await message.reply_text(welcome_text, reply_markup=reply_markup)
+
+@app.on_callback_query(filters.create(lambda _, __, query: query.data == "buy_sub"))
+async def buy_subscription(client: Client, callback_query: CallbackQuery):
+    price_text = """**Subscription Plans:**
+- 1 Month: $10
+- 3 Months: $25
+- 6 Months: $40
+- 1 Year: $70"""
+
+    contact_button = InlineKeyboardMarkup([
+        [InlineKeyboardButton("Contact Admin", url=f"tg://user?id={ADMIN_ID}")],
+        [InlineKeyboardButton("🔙 Back", callback_data="main_menu")]
+    ])
+
+    await callback_query.message.edit_text(
+        price_text,
+        reply_markup=contact_button
+    )
+
+# Add this new handler for main menu
+@app.on_callback_query(filters.create(lambda _, __, query: query.data == "main_menu"))
+async def main_menu(client: Client, callback_query: CallbackQuery):
+    user_id = callback_query.from_user.id
+    welcome_text, reply_markup = get_start_menu(user_id)
+    await callback_query.message.edit_text(welcome_text, reply_markup=reply_markup)
+
+
+@app.on_callback_query(filters.create(lambda _, __, query: query.data == "connect_account"))
+async def connect_account(client: Client, callback_query: CallbackQuery):
+    user_id = callback_query.from_user.id
+    CONNECT_ACCOUNT_STATES[user_id] = "awaiting_name"
+    
+    await callback_query.message.edit_text(
+        "Please enter your 91Club account name:"
+    )
+
 @app.on_message(filters.private & ~filters.command("start"))
 async def handle_account_info(client: Client, message: Message):
     user_id = message.from_user.id
@@ -86,7 +153,6 @@ async def handle_account_info(client: Client, message: Message):
         del CONNECT_ACCOUNT_STATES[user_id]
         await message.reply_text("✅ Successfully logged in!")
         await start_command(client, message)
-
 
 @app.on_callback_query(filters.create(lambda _, __, query: query.data == "logout"))
 async def logout_account(client: Client, callback_query: CallbackQuery):
