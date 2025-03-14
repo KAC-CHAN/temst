@@ -136,7 +136,7 @@ async def handle_account_info(client: Client, message: Message):
         )
         
         del CONNECT_ACCOUNT_STATES[user_id]
-        await message.reply_text("✅ Successfully logged in!")
+        await callback_query.message.edit_text("✅ Successfully logged in!")
         await start_command(client, callback_query.message)
 
 @app.on_callback_query(filters.create(lambda _, __, query: query.data == "logout"))
