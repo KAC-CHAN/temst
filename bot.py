@@ -155,14 +155,36 @@ async def handle_account_info(client: Client, message: Message):
 
 @app.on_callback_query(filters.create(lambda _, __, query: query.data == "logout"))
 async def logout_account(client: Client, callback_query: CallbackQuery):
+    # Ask for confirmation
+    confirmation_buttons = InlineKeyboardMarkup([
+        [InlineKeyboardButton("Yes", callback_data="confirm_logout"),
+         InlineKeyboardButton("No", callback_data="cancel_logout")]
+    ])
+    
+    await callback_query.message.edit_text(
+        "⚠️ Are you sure you want to logout?",
+        reply_markup=confirmation_buttons
+    )
+
+@app.on_callback_query(filters.create(lambda _, __, query: query.data == "confirm_logout"))
+async def confirm_logout(client: Client, callback_query: CallbackQuery):
     user_id = callback_query.from_user.id
+    # Update database
     users_collection.update_one(
         {"user_id": user_id},
         {"$set": {"logged_in": False}}
     )
-    
+    # Show logout confirmation
     await callback_query.message.edit_text("✅ Successfully logged out!")
+    # Return to main menu
     await start_command(client, callback_query.message)
+
+@app.on_callback_query(filters.create(lambda _, __, query: query.data == "cancel_logout"))
+async def cancel_logout(client: Client, callback_query: CallbackQuery):
+    # Simply return to main menu
+    user_id = callback_query.from_user.id
+    welcome_text, reply_markup = get_start_menu(user_id)
+    await callback_query.message.edit_text(welcome_text, reply_markup=reply_markup)
 
 @app.on_callback_query(filters.create(lambda _, __, query: query.data == "live_signal"))
 async def send_live_signal(client: Client, callback_query: CallbackQuery):
