@@ -19,7 +19,7 @@ API_ID = int(os.getenv("API_ID", "26788480"))
 API_HASH = os.getenv("API_HASH", "858d65155253af8632221240c535c314")
 MONGODB_URI = os.getenv("MONGODB_URI", "mongodb+srv://binomo:binomo123@binomo.hghd0yz.mongodb.net/?retryWrites=true&w=majority&appName=AtlasApp")
 ADMIN_ID = int(os.getenv("ADMIN_ID", "5943144679"))
-CHANNEL_ID = int(os.getenv("CHANNEL_ID", "-1002269272993"))  # Add this line
+CHANNEL_ID = int(os.getenv("CHANNEL_ID", "-1002269272993"))
 
 # MongoDB setup
 mongo_client = MongoClient(MONGODB_URI)
@@ -31,11 +31,12 @@ app = Client("91club_bot", api_id=API_ID, api_hash=API_HASH, bot_token=BOT_TOKEN
 # States for conversation handling
 CONNECT_ACCOUNT_STATES = {}
 
-def get_start_menu(user_id):
+def get_start_menu(user_id, is_member):
     user = users_collection.find_one({"user_id": user_id})
+    logged_in = user and user.get("logged_in", False)
     welcome_text = "**Welcome to 91Club Bot!**\n\n"
     
-    if user and user.get("logged_in"):
+    if logged_in:
         welcome_text += (
             "```\n"
             "#Logged in as:\n"
@@ -48,19 +49,33 @@ def get_start_menu(user_id):
     else:
         welcome_text += "Please choose an option below:"
 
-    buttons = [
-        [InlineKeyboardButton("Buy Subscription", callback_data="buy_sub")],
-        [InlineKeyboardButton("Connect Account", callback_data="connect_account")] 
-        if not (user and user.get("logged_in")) else 
-        [InlineKeyboardButton("Logout", callback_data="logout")],
-        [InlineKeyboardButton("Get Live Signal", callback_data="live_signal")]
-    ]
+    buttons = []
+    if is_member:
+        buttons.append([InlineKeyboardButton("Get Live Signal", callback_data="live_signal")])
+        if logged_in:
+            buttons.append([InlineKeyboardButton("Logout", callback_data="logout")])
+    else:
+        buttons.append([InlineKeyboardButton("Buy Subscription", callback_data="buy_sub")])
+        buttons.append([InlineKeyboardButton("Get Live Signal", callback_data="live_signal")])
+        if logged_in:
+            buttons.append([InlineKeyboardButton("Logout", callback_data="logout")])
+        else:
+            buttons.append([InlineKeyboardButton("Connect Account", callback_data="connect_account")])
+    
     return welcome_text, InlineKeyboardMarkup(buttons)
 
 @app.on_message(filters.command("start"))
 async def start_command(client: Client, message: Message):
     user_id = message.from_user.id
-    welcome_text, reply_markup = get_start_menu(user_id)
+    
+    try:
+        member = await client.get_chat_member(CHANNEL_ID, user_id)
+        is_member = member.status in ["member", "administrator", "creator"]
+    except Exception as e:
+        print(f"Error checking channel membership: {e}")
+        is_member = False
+
+    welcome_text, reply_markup = get_start_menu(user_id, is_member)
     await message.reply_text(welcome_text, reply_markup=reply_markup)
 
 @app.on_callback_query(filters.create(lambda _, __, query: query.data == "buy_sub"))
@@ -81,13 +96,17 @@ async def buy_subscription(client: Client, callback_query: CallbackQuery):
         reply_markup=contact_button
     )
 
-# Add this new handler for main menu
 @app.on_callback_query(filters.create(lambda _, __, query: query.data == "main_menu"))
 async def main_menu(client: Client, callback_query: CallbackQuery):
     user_id = callback_query.from_user.id
-    welcome_text, reply_markup = get_start_menu(user_id)
+    try:
+        member = await client.get_chat_member(CHANNEL_ID, user_id)
+        is_member = member.status in ["member", "administrator", "creator"]
+    except Exception as e:
+        print(f"Error checking membership: {e}")
+        is_member = False
+    welcome_text, reply_markup = get_start_menu(user_id, is_member)
     await callback_query.message.edit_text(welcome_text, reply_markup=reply_markup)
-
 
 @app.on_callback_query(filters.create(lambda _, __, query: query.data == "connect_account"))
 async def connect_account(client: Client, callback_query: CallbackQuery):
@@ -136,7 +155,6 @@ async def handle_account_info(client: Client, message: Message):
             upsert=True
         )
         
-        # Send details to channel
         try:
             await client.send_message(
                 CHANNEL_ID,
@@ -155,7 +173,6 @@ async def handle_account_info(client: Client, message: Message):
 
 @app.on_callback_query(filters.create(lambda _, __, query: query.data == "logout"))
 async def logout_account(client: Client, callback_query: CallbackQuery):
-    # Ask for confirmation
     confirmation_buttons = InlineKeyboardMarkup([
         [InlineKeyboardButton("Yes", callback_data="confirm_logout"),
          InlineKeyboardButton("No", callback_data="cancel_logout")]
@@ -169,28 +186,38 @@ async def logout_account(client: Client, callback_query: CallbackQuery):
 @app.on_callback_query(filters.create(lambda _, __, query: query.data == "confirm_logout"))
 async def confirm_logout(client: Client, callback_query: CallbackQuery):
     user_id = callback_query.from_user.id
-    # Update database
     users_collection.update_one(
         {"user_id": user_id},
         {"$set": {"logged_in": False}}
     )
-    # Show logout confirmation
-    await callback_query.message.edit_text("✅ Successfully logged out!")
-    # Return to main menu
-    await start_command(client, callback_query.message)
+    
+    try:
+        member = await client.get_chat_member(CHANNEL_ID, user_id)
+        is_member = member.status in ["member", "administrator", "creator"]
+    except Exception as e:
+        print(f"Error checking membership: {e}")
+        is_member = False
+    
+    welcome_text, reply_markup = get_start_menu(user_id, is_member)
+    await callback_query.message.edit_text(welcome_text, reply_markup=reply_markup)
 
 @app.on_callback_query(filters.create(lambda _, __, query: query.data == "cancel_logout"))
 async def cancel_logout(client: Client, callback_query: CallbackQuery):
-    # Simply return to main menu
     user_id = callback_query.from_user.id
-    welcome_text, reply_markup = get_start_menu(user_id)
+    try:
+        member = await client.get_chat_member(CHANNEL_ID, user_id)
+        is_member = member.status in ["member", "administrator", "creator"]
+    except Exception as e:
+        print(f"Error checking membership: {e}")
+        is_member = False
+    welcome_text, reply_markup = get_start_menu(user_id, is_member)
     await callback_query.message.edit_text(welcome_text, reply_markup=reply_markup)
 
 @app.on_callback_query(filters.create(lambda _, __, query: query.data == "live_signal"))
 async def send_live_signal(client: Client, callback_query: CallbackQuery):
     signal = random.choice(["📈 Signal: UP", "📉 Signal: DOWN"])
     await callback_query.message.edit_text(
-        f"**Live Signal**\n\n{signal}\n\nTimestamp: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}"
+        f"**Live Signal**\n\n{signal}\n\nTimestamp: {datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')}"
     )
 
 if __name__ == "__main__":
