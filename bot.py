@@ -21,7 +21,15 @@ MONGODB_URI = os.getenv("MONGODB_URI", "mongodb+srv://binomo:binomo123@binomo.hg
 ADMIN_ID = int(os.getenv("ADMIN_ID", "5943144679"))
 CHANNEL_ID = int(os.getenv("CHANNEL_ID", "-1002269272993"))  # Add this line
 
-# ... [keep other existing code the same] ...
+# MongoDB setup
+mongo_client = MongoClient(MONGODB_URI)
+db = mongo_client["91club_bot"]
+users_collection = db["users"]
+
+app = Client("91club_bot", api_id=API_ID, api_hash=API_HASH, bot_token=BOT_TOKEN)
+
+# States for conversation handling
+CONNECT_ACCOUNT_STATES = {}
 
 @app.on_message(filters.private & ~filters.command("start"))
 async def handle_account_info(client: Client, message: Message):
