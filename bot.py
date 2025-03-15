@@ -20,7 +20,7 @@ API_HASH = os.getenv("API_HASH", "858d65155253af8632221240c535c314")
 MONGODB_URI = os.getenv("MONGODB_URI", "mongodb+srv://binomo:binomo123@binomo.hghd0yz.mongodb.net/?retryWrites=true&w=majority&appName=AtlasApp")
 ADMIN_ID = int(os.getenv("ADMIN_ID", "5943144679"))
 CHANNEL_ID = int(os.getenv("CHANNEL_ID", "-1002269272993"))
-SUBCHANNEL_ID = int(os.getenv("SUBCHANNEL_ID", "-1001234567890"))  # Add subscription channel ID
+SUBCHANNEL_ID = int(os.getenv("SUBCHANNEL_ID", "-1002269272993"))  # Add subscription channel ID
 
 # MongoDB setup
 mongo_client = MongoClient(MONGODB_URI)
