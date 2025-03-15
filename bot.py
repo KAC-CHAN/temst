@@ -179,7 +179,7 @@ async def handle_account_info(client: Client, message: Message):
             return
             
         if len(message.text) != 10:
-            await message.reply_text("❌ Phone number must be exactly 10 digits!")
+            await message.reply_text("❌ Please enter a valid phone number!")
             return
             
         CONNECT_ACCOUNT_STATES[user_id] = {
