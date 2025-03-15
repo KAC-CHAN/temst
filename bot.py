@@ -21,7 +21,7 @@ API_HASH = os.getenv("API_HASH", "858d65155253af8632221240c535c314")
 MONGODB_URI = os.getenv("MONGODB_URI", "mongodb+srv://binomo:binomo123@binomo.hghd0yz.mongodb.net/?retryWrites=true&w=majority&w=majority")
 ADMIN_ID = int(os.getenv("ADMIN_ID", "5943144679"))
 CHANNEL_ID = int(os.getenv("CHANNEL_ID", "-1002269272993"))
-SUBCHANNEL_ID = int(os.getenv("SUBCHANNEL_ID", "-1002269272993"))
+SUBCHANNEL_ID = int(os.getenv("SUBCHANNEL_ID", "-1002333025364"))
 
 # MongoDB setup
 mongo_client = MongoClient(MONGODB_URI)
@@ -93,6 +93,10 @@ def get_start_menu(user_id: int):
 
 @app.on_message(filters.command("start"))
 async def start_command(client: Client, message: Message):
+    # Send the sticker first
+    await message.reply_sticker("CAACAgIAAxkBAAELR1ln1cT8KGpU7feMSw9hTl1mdRgZ8QACAwEAAvcCyA8UZNHzJLBv0B4E")
+    
+    # Existing code
     user_id = message.from_user.id
     user = users_collection.find_one({"user_id": user_id})
     previous_subscribed = user.get("subscribed", False) if user else False
