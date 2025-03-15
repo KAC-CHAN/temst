@@ -170,12 +170,16 @@ async def handle_account_info(client: Client, message: Message):
             "state": "awaiting_phone",
             "name": message.text
         }
-        await message.reply_text("Please enter your 91Club phone number:")
+        await message.reply_text("Please enter your 91Club phone number (10 digits):")
     
     elif state.get("state") == "awaiting_phone":
         # Validate phone number format
         if not message.text.isdigit():
             await message.reply_text("❌ Please enter a valid phone number!")
+            return
+            
+        if len(message.text) != 10:
+            await message.reply_text("❌ Phone number must be exactly 10 digits!")
             return
             
         CONNECT_ACCOUNT_STATES[user_id] = {
