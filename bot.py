@@ -70,7 +70,7 @@ def get_start_menu(user_id: int):
             [InlineKeyboardButton("Get Live Signal", callback_data="live_signal")],
             [InlineKeyboardButton("Connect Account", callback_data="connect_account") 
             if not (user and user.get("logged_in")) else 
-            [InlineKeyboardButton("Logout", callback_data="logout")]
+            InlineKeyboardButton("Logout", callback_data="logout")]
         ]
     else:
         buttons = [
