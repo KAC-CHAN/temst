@@ -48,12 +48,13 @@ def get_start_menu(user_id):
     else:
         welcome_text += "Please choose an option below:"
 
+    # Modified button order
     buttons = [
         [InlineKeyboardButton("Buy Subscription", callback_data="buy_sub")],
+        [InlineKeyboardButton("Get Live Signal", callback_data="live_signal")],
         [InlineKeyboardButton("Connect Account", callback_data="connect_account")] 
         if not (user and user.get("logged_in")) else 
-        [InlineKeyboardButton("Logout", callback_data="logout")],
-        [InlineKeyboardButton("Get Live Signal", callback_data="live_signal")]
+        [InlineKeyboardButton("Logout", callback_data="logout")]
     ]
     return welcome_text, InlineKeyboardMarkup(buttons)
 
