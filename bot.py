@@ -108,22 +108,13 @@ async def start_command(client: Client, message: Message):
             await client.send_message(
                 user_id,
                 "🎉 Thank you for subscribing to our channel!\n"
-                "You now have access to premium features!",
-                message_effect_id=5104841245755180586
+                "You now have access to premium features!"
             )
         except Exception as e:
             print(f"Error sending welcome message: {e}")
 
     welcome_text, reply_markup = get_start_menu(user_id)
-    
-    # Send message with effect
-    await client.send_message(
-        chat_id=message.chat.id,
-        text=welcome_text,
-        reply_markup=reply_markup,
-        message_effect_id=5104841245755180586,
-        reply_to_message_id=message.id
-    )
+    await message.reply_text(welcome_text, reply_markup=reply_markup)
 
 
 @app.on_callback_query(filters.create(lambda _, __, query: query.data == "buy_sub"))
