@@ -66,16 +66,15 @@ def get_start_menu(user_id: int):
     buttons = []
     if subscribed:
         if user and user.get("logged_in"):
-            # Logged in: Show "Get Live Signal" first and "Logout" second
+            # Show live signal and logout buttons
             buttons = [
                 [InlineKeyboardButton("Get Live Signal", callback_data="live_signal")],
                 [InlineKeyboardButton("Logout", callback_data="logout")]
             ]
         else:
-            # Not logged in: Show "Connect Account" first and "Get Live Signal" second
+            # Only show connect account button
             buttons = [
-                [InlineKeyboardButton("Connect Account", callback_data="connect_account")],
-                [InlineKeyboardButton("Get Live Signal", callback_data="live_signal")]
+                [InlineKeyboardButton("Connect Account", callback_data="connect_account")]
             ]
     else:
         buttons = [
@@ -138,7 +137,7 @@ After payment, you'll be added to our private channel."""
 async def send_live_signal(client: Client, callback_query: CallbackQuery):
     user_id = callback_query.from_user.id
     
-    # Real-time subscription check
+    # Check subscription
     subscribed = await check_subscription(user_id, client)
     if not subscribed:
         await callback_query.answer(
@@ -147,6 +146,16 @@ async def send_live_signal(client: Client, callback_query: CallbackQuery):
         )
         return
 
+    # Check login status
+    user = users_collection.find_one({"user_id": user_id})
+    if not user or not user.get("logged_in"):
+        await callback_query.answer(
+            "You need to login first to access live signals!",
+            show_alert=True
+        )
+        return
+
+    # Generate signal
     signal = random.choice(["📈 Signal: UP", "📉 Signal: DOWN"])
     await callback_query.message.edit_text(
         f"**Live Signal**\n\n{signal}\n\n"
