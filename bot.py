@@ -119,20 +119,28 @@ async def start_command(client: Client, message: Message):
 
 @app.on_callback_query(filters.create(lambda _, __, query: query.data == "buy_sub"))
 async def buy_subscription(client: Client, callback_query: CallbackQuery):
+    # Send the image
+    image_url = "https://files.catbox.moe/492mpp.jpg"
+    await client.send_photo(
+        chat_id=callback_query.message.chat.id,
+        photo=image_url
+    )
+
+    # Send the subscription details
     price_text = """**Subscription Plans:**
 
-[- There is only one plan:
+- There is only one plan:
 
 - 222₹/- for Life-time Access!
 
-- After payment send the transaction-id or screenshot to the Admin.](https://files.catbox.moe/492mpp.jpg)"""
+- After payment send the transaction-id or screenshot to the Admin."""
 
     contact_button = InlineKeyboardMarkup([
         [InlineKeyboardButton("Contact Admin", url=f"t.me/91clubadmin")],
         [InlineKeyboardButton("🔙 Back", callback_data="main_menu")]
     ])
 
-    await callback_query.message.edit_text(
+    await callback_query.message.reply_text(
         price_text,
         reply_markup=contact_button
     )
