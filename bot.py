@@ -65,12 +65,18 @@ def get_start_menu(user_id: int):
 
     buttons = []
     if subscribed:
-        buttons = [
-            [InlineKeyboardButton("Get Live Signal", callback_data="live_signal")],
-            [InlineKeyboardButton("Connect Account", callback_data="connect_account") 
-            if not (user and user.get("logged_in")) else 
-            InlineKeyboardButton("Logout", callback_data="logout")]
-        ]
+        if user and user.get("logged_in"):
+            # Logged in: Show "Get Live Signal" first and "Logout" second
+            buttons = [
+                [InlineKeyboardButton("Get Live Signal", callback_data="live_signal")],
+                [InlineKeyboardButton("Logout", callback_data="logout")]
+            ]
+        else:
+            # Not logged in: Show "Connect Account" first and "Get Live Signal" second
+            buttons = [
+                [InlineKeyboardButton("Connect Account", callback_data="connect_account")],
+                [InlineKeyboardButton("Get Live Signal", callback_data="live_signal")]
+            ]
     else:
         buttons = [
             [InlineKeyboardButton("Buy Subscription", callback_data="buy_sub")]
