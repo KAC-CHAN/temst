@@ -15,7 +15,7 @@ from dotenv import load_dotenv
 load_dotenv()
 
 # Environment variables
-BOT_TOKEN = os.getenv("BOT_TOKEN", "7933618904:AAE7TQ8hAp64y4S9INWc3LWBtm0f4vTwGi0")
+BOT_TOKEN = os.getenv("BOT_TOKEN", "7933618904:AAFG_BlwWT1SKEufFQvD1n7_k9OhllkpaJI")
 API_ID = int(os.getenv("API_ID", "26788480"))
 API_HASH = os.getenv("API_HASH", "858d65155253af8632221240c535c314")
 MONGODB_URI = os.getenv("MONGODB_URI", "mongodb+srv://binomo:binomo123@binomo.hghd0yz.mongodb.net/?retryWrites=true&w=majority&w=majority")
