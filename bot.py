@@ -66,7 +66,6 @@ def get_start_menu(user_id: int):
     buttons = []
     if subscribed:
         buttons = [
-            [InlineKeyboardButton("Buy Subscription", callback_data="buy_sub")],
             [InlineKeyboardButton("Get Live Signal", callback_data="live_signal")],
             [InlineKeyboardButton("Connect Account", callback_data="connect_account") 
             if not (user and user.get("logged_in")) else 
@@ -83,6 +82,10 @@ def get_start_menu(user_id: int):
 async def start_command(client: Client, message: Message):
     user_id = message.from_user.id
     
+    # Get previous subscription status
+    user = users_collection.find_one({"user_id": user_id})
+    previous_subscribed = user.get("subscribed", False) if user else False
+
     # Update subscription status
     subscribed = await check_subscription(user_id, client)
     users_collection.update_one(
@@ -90,6 +93,17 @@ async def start_command(client: Client, message: Message):
         {"$set": {"subscribed": subscribed}},
         upsert=True
     )
+
+    # Send welcome message if new subscriber
+    if subscribed and not previous_subscribed:
+        try:
+            await client.send_message(
+                user_id,
+                "🎉 Thank you for subscribing to our channel!\n"
+                "You now have access to premium features!"
+            )
+        except Exception as e:
+            print(f"Error sending welcome message: {e}")
 
     welcome_text, reply_markup = get_start_menu(user_id)
     await message.reply_text(welcome_text, reply_markup=reply_markup)
