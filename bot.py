@@ -56,7 +56,7 @@ def get_start_menu(user_id: int):
     user = users_collection.find_one({"user_id": user_id})
     subscribed = user.get("subscribed", False) if user else False
     
-    welcome_text = "**Welcome to 91Club Bot!**\n\n"
+    welcome_text = "**Welcome to 91club hack bot!**\n\n"
     
     if user and user.get("logged_in"):
         welcome_text += (
@@ -114,7 +114,7 @@ async def start_command(client: Client, message: Message):
             print(f"Error sending welcome message: {e}")
 
     welcome_text, reply_markup = get_start_menu(user_id)
-    await message.reply_text(welcome_text, reply_markup=reply_markup)
+    await message.reply_text(welcome_text, reply_markup=reply_markup, message_effect_id=5104841245755180586)
 
 
 @app.on_callback_query(filters.create(lambda _, __, query: query.data == "buy_sub"))
