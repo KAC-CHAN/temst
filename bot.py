@@ -121,11 +121,11 @@ async def start_command(client: Client, message: Message):
 async def buy_subscription(client: Client, callback_query: CallbackQuery):
     price_text = """**Subscription Plans:**
 
-- There is only one plan:
+[- There is only one plan:
 
 - 222₹/- for Life-time Access!
 
-- After payment send the transaction-id or screenshot to the Admin."""
+- After payment send the transaction-id or screenshot to the Admin.](https://files.catbox.moe/492mpp.jpg)"""
 
     contact_button = InlineKeyboardMarkup([
         [InlineKeyboardButton("Contact Admin", url=f"t.me/91clubadmin")],
