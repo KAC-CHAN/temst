@@ -8,17 +8,6 @@ from pyrogram.types import (
     Message,
     CallbackQuery
 )
-import contextlib
-import re
-
-from pyrogram import Client, filters
-from pyrogram.errors import ChatSendPhotosForbidden, ChatWriteForbidden, QueryIdInvalid
-from pyrogram.types import (
-    CallbackQuery,
-    InlineKeyboardButton,
-    InlineKeyboardMarkup,
-    Message,
-)
 from pymongo import MongoClient
 from dotenv import load_dotenv
 
