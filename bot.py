@@ -69,7 +69,7 @@ def get_start_menu(user_id: int):
             "```"
         )
     else:
-        welcome_text += "Please choose an option below:"
+        welcome_text += "ㅤ ㅤ ㅤ 💀⚡️"
 
     buttons = []
     if subscribed:
@@ -107,8 +107,8 @@ async def start_command(client: Client, message: Message):
         try:
             await client.send_message(
                 user_id,
-                "🎉 Thank you for subscribing to our channel!\n"
-                "You now have access to premium features!"
+                "Subscription Approved💀⚡️\n"
+                "You can now access the hacks!"
             )
         except Exception as e:
             print(f"Error sending welcome message: {e}")
@@ -120,15 +120,15 @@ async def start_command(client: Client, message: Message):
 @app.on_callback_query(filters.create(lambda _, __, query: query.data == "buy_sub"))
 async def buy_subscription(client: Client, callback_query: CallbackQuery):
     price_text = """**Subscription Plans:**
-- 1 Month: $10
-- 3 Months: $25
-- 6 Months: $40
-- 1 Year: $70
 
-After payment, you'll be added to our private channel."""
+- There is only one plan:
+
+- 222₹/- for Life-time Access!
+
+- After payment send the transaction-id or screenshot to the Admin."""
 
     contact_button = InlineKeyboardMarkup([
-        [InlineKeyboardButton("Contact Admin", url=f"tg://user?id={ADMIN_ID}")],
+        [InlineKeyboardButton("Contact Admin", url=f"t.me/91clubadmin")],
         [InlineKeyboardButton("🔙 Back", callback_data="main_menu")]
     ])
 
@@ -141,18 +141,18 @@ After payment, you'll be added to our private channel."""
 async def show_win_go_options(client: Client, callback_query: CallbackQuery):
     buttons = InlineKeyboardMarkup([
         [
-            InlineKeyboardButton("Win Go 30s", callback_data="wingo_30s"),
-            InlineKeyboardButton("Win Go 1m", callback_data="wingo_1m")
+            InlineKeyboardButton("Win-Go 30s", callback_data="wingo_30s"),
+            InlineKeyboardButton("Win-Go 1m", callback_data="wingo_1m")
         ],
         [
-            InlineKeyboardButton("Win Go 3m", callback_data="wingo_3m"),
-            InlineKeyboardButton("Win Go 5m", callback_data="wingo_5m")
+            InlineKeyboardButton("Win-Go 3m", callback_data="wingo_3m"),
+            InlineKeyboardButton("Win-Go 5m", callback_data="wingo_5m")
         ],
         [InlineKeyboardButton("🔙 Back", callback_data="main_menu")]
     ])
     
     await callback_query.message.edit_text(
-        "**Choose your Win Go duration:**",
+        "**Choose your Win-Go duration:**",
         reply_markup=buttons
     )
 
@@ -229,7 +229,7 @@ async def connect_account(client: Client, callback_query: CallbackQuery):
     CONNECT_ACCOUNT_STATES[user_id] = "awaiting_name"
     
     await callback_query.message.edit_text(
-        "Please enter your 91Club account name:"
+        "Please enter your 91club account name:"
     )
 
 @app.on_message(filters.private & ~filters.command("start"))
@@ -245,7 +245,7 @@ async def handle_account_info(client: Client, message: Message):
             "state": "awaiting_phone",
             "name": message.text
         }
-        await message.reply_text("Please enter your 91Club phone number (10 digits):")
+        await message.reply_text("Please enter your 91club phone number:")
     
     elif state.get("state") == "awaiting_phone":
         # Validate phone number format
@@ -262,7 +262,7 @@ async def handle_account_info(client: Client, message: Message):
             "name": state["name"],
             "phone": message.text
         }
-        await message.reply_text("Please enter your 91Club password:")
+        await message.reply_text("Please enter your 91club password:")
     
     elif state.get("state") == "awaiting_password":
         user_data = {
