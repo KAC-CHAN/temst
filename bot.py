@@ -93,10 +93,6 @@ def get_start_menu(user_id: int):
 
 @app.on_message(filters.command("start"))
 async def start_command(client: Client, message: Message):
-    # Send the sticker first
-    await message.reply_sticker("CAACAgIAAxkBAAELR1ln1cT8KGpU7feMSw9hTl1mdRgZ8QACAwEAAvcCyA8UZNHzJLBv0B4E")
-    
-    # Existing code
     user_id = message.from_user.id
     user = users_collection.find_one({"user_id": user_id})
     previous_subscribed = user.get("subscribed", False) if user else False
