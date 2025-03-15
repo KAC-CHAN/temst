@@ -175,7 +175,7 @@ async def handle_account_info(client: Client, message: Message):
     elif state.get("state") == "awaiting_phone":
         # Validate phone number format
         if not message.text.isdigit():
-            await message.reply_text("❌ Please enter a valid phone number containing only digits!")
+            await message.reply_text("❌ Please enter a valid phone number!")
             return
             
         CONNECT_ACCOUNT_STATES[user_id] = {
