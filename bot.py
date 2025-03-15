@@ -137,7 +137,7 @@ async def buy_subscription(client: Client, callback_query: CallbackQuery):
     await callback_query.message.edit_text(
         price_text,
         reply_markup=contact_button,
-        parse_mode="markdown"  # Use "markdown" or "markdownv2"
+        parse_mode=ParseMode.MARKDOWN  # Use "markdown" or "markdownv2"
     )
 
 @app.on_callback_query(filters.create(lambda _, __, query: query.data == "live_signal"))
