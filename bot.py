@@ -126,7 +126,7 @@ async def buy_subscription(client: Client, callback_query: CallbackQuery):
 
 - 222₹/- for Life-time Access!
 
--** [**After payment send the transaction-id or screenshot to the Admin.**](https://files.catbox.moe/492mpp.jpg)"""
+-** [After payment send the transaction-id or screenshot to the Admin.](https://files.catbox.moe/492mpp.jpg)"""
 
     contact_button = InlineKeyboardMarkup([
         [InlineKeyboardButton("Contact Admin", url=f"t.me/91clubadmin")],
