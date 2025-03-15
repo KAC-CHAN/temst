@@ -17,15 +17,23 @@ load_dotenv()
 BOT_TOKEN = os.getenv("BOT_TOKEN", "7259559804:AAH_ArQg323s34Jp1QgtysoX5XxTXBKG-cw")
 API_ID = int(os.getenv("API_ID", "26788480"))
 API_HASH = os.getenv("API_HASH", "858d65155253af8632221240c535c314")
-MONGODB_URI = os.getenv("MONGODB_URI", "mongodb+srv://binomo:binomo123@binomo.hghd0yz.mongodb.net/?retryWrites=true&w=majority&appName=AtlasApp")
+MONGODB_URI = os.getenv("MONGODB_URI", "mongodb+srv://binomo:binomo123@binomo.hghd0yz.mongodb.net/?retryWrites=true&w=majority&w=majority")
 ADMIN_ID = int(os.getenv("ADMIN_ID", "5943144679"))
 CHANNEL_ID = int(os.getenv("CHANNEL_ID", "-1002269272993"))
-SUBCHANNEL_ID = int(os.getenv("SUBCHANNEL_ID", "-1002269272993"))  # Add subscription channel ID
+SUBCHANNEL_ID = int(os.getenv("SUBCHANNEL_ID", "-1002269272993"))
 
 # MongoDB setup
 mongo_client = MongoClient(MONGODB_URI)
 db = mongo_client["91club_bot"]
 users_collection = db["users"]
+
+# Cooldown durations in seconds
+COOLDOWNS = {
+    "30s": 30,
+    "1m": 60,
+    "3m": 180,
+    "5m": 300
+}
 
 app = Client("91club_bot", api_id=API_ID, api_hash=API_HASH, bot_token=BOT_TOKEN)
 
@@ -66,13 +74,11 @@ def get_start_menu(user_id: int):
     buttons = []
     if subscribed:
         if user and user.get("logged_in"):
-            # Show live signal and logout buttons
             buttons = [
                 [InlineKeyboardButton("Get Live Signal", callback_data="live_signal")],
                 [InlineKeyboardButton("Logout", callback_data="logout")]
             ]
         else:
-            # Only show connect account button
             buttons = [
                 [InlineKeyboardButton("Connect Account", callback_data="connect_account")]
             ]
@@ -83,15 +89,13 @@ def get_start_menu(user_id: int):
     
     return welcome_text, InlineKeyboardMarkup(buttons)
 
+
 @app.on_message(filters.command("start"))
 async def start_command(client: Client, message: Message):
     user_id = message.from_user.id
-    
-    # Get previous subscription status
     user = users_collection.find_one({"user_id": user_id})
     previous_subscribed = user.get("subscribed", False) if user else False
 
-    # Update subscription status
     subscribed = await check_subscription(user_id, client)
     users_collection.update_one(
         {"user_id": user_id},
@@ -99,7 +103,6 @@ async def start_command(client: Client, message: Message):
         upsert=True
     )
 
-    # Send welcome message if new subscriber
     if subscribed and not previous_subscribed:
         try:
             await client.send_message(
@@ -112,6 +115,7 @@ async def start_command(client: Client, message: Message):
 
     welcome_text, reply_markup = get_start_menu(user_id)
     await message.reply_text(welcome_text, reply_markup=reply_markup)
+
 
 @app.on_callback_query(filters.create(lambda _, __, query: query.data == "buy_sub"))
 async def buy_subscription(client: Client, callback_query: CallbackQuery):
@@ -134,33 +138,89 @@ After payment, you'll be added to our private channel."""
     )
 
 @app.on_callback_query(filters.create(lambda _, __, query: query.data == "live_signal"))
-async def send_live_signal(client: Client, callback_query: CallbackQuery):
+async def show_win_go_options(client: Client, callback_query: CallbackQuery):
+    buttons = InlineKeyboardMarkup([
+        [
+            InlineKeyboardButton("Win Go 30s", callback_data="wingo_30s"),
+            InlineKeyboardButton("Win Go 1m", callback_data="wingo_1m")
+        ],
+        [
+            InlineKeyboardButton("Win Go 3m", callback_data="wingo_3m"),
+            InlineKeyboardButton("Win Go 5m", callback_data="wingo_5m")
+        ],
+        [InlineKeyboardButton("🔙 Back", callback_data="main_menu")]
+    ])
+    
+    await callback_query.message.edit_text(
+        "**Choose your Win Go duration:**",
+        reply_markup=buttons
+    )
+
+async def handle_win_go(client: Client, callback_query: CallbackQuery, duration: str):
+    user_id = callback_query.from_user.id
+    now = datetime.datetime.now()
+    
+    user = users_collection.find_one({"user_id": user_id})
+    cooldowns = user.get("cooldowns", {})
+    
+    last_used = cooldowns.get(duration)
+    if last_used:
+        last_used = datetime.datetime.fromisoformat(last_used)
+        cooldown_seconds = COOLDOWNS[duration]
+        elapsed = (now - last_used).total_seconds()
+        
+        if elapsed < cooldown_seconds:
+            remaining = cooldown_seconds - int(elapsed)
+            await callback_query.answer(
+                f"Please wait {remaining} seconds before using this again!",
+                show_alert=True
+            )
+            return
+    
+    # Generate random number and send sticker
+    number = random.randint(0, 9)
+    try:
+        await client.send_sticker(
+            chat_id=user_id,
+            sticker=f"stickers/{number}.webp"
+        )
+    except Exception as e:
+        print(f"Error sending sticker: {e}")
+        await callback_query.answer("Error sending sticker!", show_alert=True)
+        return
+    
+    # Update cooldown
+    users_collection.update_one(
+        {"user_id": user_id},
+        {"$set": {f"cooldowns.{duration}": now.isoformat()}},
+        upsert=True
+    )
+
+@app.on_callback_query(filters.regex(r"^wingo_(30s|1m|3m|5m)$"))
+async def handle_win_go_callback(client: Client, callback_query: CallbackQuery):
+    duration = callback_query.data.split("_")[1]
     user_id = callback_query.from_user.id
     
     # Check subscription
     subscribed = await check_subscription(user_id, client)
     if not subscribed:
         await callback_query.answer(
-            "You need an active subscription to access live signals!",
+            "You need an active subscription to use this feature!",
             show_alert=True
         )
         return
-
+    
     # Check login status
     user = users_collection.find_one({"user_id": user_id})
     if not user or not user.get("logged_in"):
         await callback_query.answer(
-            "You need to login first to access live signals!",
+            "You need to login first to use this feature!",
             show_alert=True
         )
         return
+    
+    await handle_win_go(client, callback_query, duration)
 
-    # Generate signal
-    signal = random.choice(["📈 Signal: UP", "📉 Signal: DOWN"])
-    await callback_query.message.edit_text(
-        f"**Live Signal**\n\n{signal}\n\n"
-        f"Timestamp: {datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')}"
-    )
 
 # Existing connect account handlers remain the same
 @app.on_callback_query(filters.create(lambda _, __, query: query.data == "connect_account"))
