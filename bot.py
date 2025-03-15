@@ -69,7 +69,7 @@ def get_start_menu(user_id: int):
             "```"
         )
     else:
-        welcome_text += "ㅤ ㅤ    ㅤ 💀⚡️"
+        welcome_text += "ㅤ ㅤㅤ ㅤ    ㅤ 💀⚡️"
 
     buttons = []
     if subscribed:
