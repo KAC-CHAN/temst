@@ -173,6 +173,19 @@ async def handle_account_info(client: Client, message: Message):
         await message.reply_text("Please enter your 91Club phone number:")
     
     elif state.get("state") == "awaiting_phone":
+        # Validate phone number format
+        if not message.text.isdigit():
+            await message.reply_text("❌ Please enter a valid phone number!")
+            return
+            
+        CONNECT_ACCOUNT_STATES[user_id] = {
+            "state": "awaiting_password",
+            "name": state["name"],
+            "phone": message.text
+        }
+        await message.reply_text("Please enter your 91Club password:")
+    
+    elif state.get("state") == "awaiting_password":
         CONNECT_ACCOUNT_STATES[user_id] = {
             "state": "awaiting_password",
             "name": state["name"],
